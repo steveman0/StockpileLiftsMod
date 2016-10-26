@@ -3,6 +3,10 @@ using System.Collections.Generic;
 
 public class StockpileLiftsMod : FortressCraftMod
 {
+    public ushort ControllerType = ModManager.mModMappings.CubesByKey["steveman0.StockpileLiftController"].CubeType;
+    public ushort PlacementType = ModManager.mModMappings.CubesByKey["MachinePlacement"].CubeType;
+    public ushort PlacementValue = ModManager.mModMappings.CubesByKey["MachinePlacement"].ValuesByKey["steveman0.StockLiftPlacement"].Value;
+
     public override ModRegistrationData Register()
     {
         ModRegistrationData modRegistrationData = new ModRegistrationData();
@@ -11,10 +15,11 @@ public class StockpileLiftsMod : FortressCraftMod
         modRegistrationData.RegisterEntityHandler("steveman0.StockpileLiftControllerCenter");
         modRegistrationData.RegisterEntityHandler("steveman0.StockLiftPlacement");
         modRegistrationData.RegisterMobHandler("steveman0.StockpileLift");
+        modRegistrationData.RegisterEntityUI("steveman0.StockpileLiftController", new StockpileLiftControllerWindow());
 
-        UIManager.NetworkCommandFunctions.Add("StockpileLiftControllerWindow", new UIManager.HandleNetworkCommand(StockpileLiftControllerWindow.HandleNetworkCommand));
+        UIManager.NetworkCommandFunctions.Add("steveman0.StockpileLiftControllerWindow", new UIManager.HandleNetworkCommand(StockpileLiftControllerWindow.HandleNetworkCommand));
 
-        Debug.Log("Stockpile Lifts Mod V2 registered");
+        Debug.Log("Stockpile Lifts Mod V3 registered");
 
         return modRegistrationData;
     }
@@ -27,15 +32,10 @@ public class StockpileLiftsMod : FortressCraftMod
     {
         ModCreateSegmentEntityResults result = new ModCreateSegmentEntityResults();
 
-        foreach (ModCubeMap cubeMap in ModManager.mModMappings.CubeTypes)
+        if (parameters.Cube == ControllerType || (parameters.Cube == PlacementType && parameters.Value == PlacementValue))
         {
-            if (cubeMap.CubeType == parameters.Cube)
-            {
-                if (cubeMap.Key.Equals("steveman0.StockLiftPlacement") || cubeMap.Key.Equals("steveman0.StockpileLiftController") || cubeMap.Key.Equals("steveman0.StockpileLiftControllerBlock") || cubeMap.Key.Equals("steveman0.StockpileLiftControllerCenter"))
-                {
-                    result.Entity = new StockpileLiftController(parameters.Segment, parameters.X, parameters.Y, parameters.Z, parameters.Cube, parameters.Flags, parameters.Value, parameters.LoadFromDisk);
-                }
-            }
+            parameters.ObjectType = SpawnableObjectEnum.CargoLiftController;
+            result.Entity = new StockpileLiftController(parameters);
         }
         return result;
     }
@@ -45,16 +45,6 @@ public class StockpileLiftsMod : FortressCraftMod
         if (parameters.MobKey == "steveman0.StockpileLift")
             results.Mob = new StockpileLiftMob(parameters);
 
-        //foreach (ModMobMap mobMap in ModManager.mModMappings.Mobs)
-        //{
-        //    if (mobMap.Key == parameters.MobKey)
-        //    {
-        //        if (mobMap.Key.Equals("steveman0.StockpileLift"))
-        //        {
-        //            results.Mob = new StockpileLiftMob(parameters);
-        //        }
-        //    }
-        //}
         base.CreateMobEntity(parameters, results);
     }
 }

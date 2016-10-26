@@ -71,13 +71,13 @@ public class StockpileLiftController : MachineEntity, PowerConsumerInterface
 
     private bool LiftNeedsLinked = false;
 
-    public StockpileLiftControllerWindow MachineWindow = new StockpileLiftControllerWindow();
+    //public StockpileLiftControllerWindow MachineWindow = new StockpileLiftControllerWindow();
 
-    public StockpileLiftController(Segment segment, long x, long y, long z, ushort cube, byte flags, ushort lValue, bool loadFromDisk)
-    : base(eSegmentEntity.Mod, SpawnableObjectEnum.CargoLiftController, x, y, z, cube, flags, lValue, Vector3.zero, segment)
+    public StockpileLiftController(ModCreateSegmentEntityParameters parameters)
+    : base(parameters)
   {
         this.mMBMState = MachineEntity.MBMState.WaitingForLink;
-        if ((int)lValue != CENTER_VALUE)
+        if ((int)parameters.Value != CENTER_VALUE)
             return;
         this.mbIsCenter = true;
         this.mMBMState = MachineEntity.MBMState.ReacquiringLink;
@@ -456,8 +456,8 @@ public class StockpileLiftController : MachineEntity, PowerConsumerInterface
 
     public override void UnityUpdate()
     {
-        if (this.mbIsCenter)
-            UIUtil.DisconnectUI(this);
+        //if (this.mbIsCenter)
+        //    UIUtil.DisconnectUI(this);
         if (this.mLiftMob != null && mLiftMob.mWrapper != null && this.LiftNeedsLinked && mLiftMob.mWrapper.mGameObjectList != null && mLiftMob.mWrapper.mGameObjectList.Count != 0)
         {
             Component[] obj = mLiftMob.mWrapper.mGameObjectList[0].gameObject.GetComponentsInChildren(typeof(Component));
@@ -1445,7 +1445,7 @@ public class StockpileLiftController : MachineEntity, PowerConsumerInterface
     {
         if (this.mLinkedCenter != null)
             return this.mLinkedCenter.GetPopupText();
-        UIUtil.HandleThisMachineWindow(this.mLinkedCenter, MachineWindow);
+        //UIUtil.HandleThisMachineWindow(this.mLinkedCenter, MachineWindow);
         string str1 = "Stockpile Lift Controller" + "\nPower State: " + this.mPowerState + "\nRack Rail storage: " + this.mnRailCount;
         if (this.mOperatingState == StockpileLiftController.OperatingState.InstallingRails)
             str1 = str1 + "\nOperating State: " + this.mOperatingState + "\nRail Depth: " + this.mnRailDepth.ToString("N0") + "\nRail State: " + this.mRailState;

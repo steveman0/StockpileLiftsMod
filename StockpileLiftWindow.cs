@@ -5,7 +5,7 @@ using System.IO;
 
 public class StockpileLiftControllerWindow : BaseMachineWindow
 {
-    public const string InterfaceName = "StockpileLiftControllerWindow";
+    public const string InterfaceName = "steveman0.StockpileLiftControllerWindow";
     public const string InterfaceSwapCargoLift = "SwapCargoLift";
     public const string InterfaceToggleLoadMode = "ToggleLoadMode";
     public const string InterfaceToggleLoadOrder = "ToggleLoadOrder";
@@ -29,12 +29,12 @@ public class StockpileLiftControllerWindow : BaseMachineWindow
         //Catch for when the window is called on an inappropriate machine
         if (controller == null)
         {
-            GenericMachinePanelScript.instance.Hide();
+            //GenericMachinePanelScript.instance.Hide();
             UIManager.RemoveUIRules("Machine");
             return;
         }
-        UIUtil.UIdelay = 0;
-        UIUtil.UILock = true;
+        //UIUtil.UIdelay = 0;
+        //UIUtil.UILock = true;
 
 
         StockpileLiftController center = (targetEntity as StockpileLiftController).GetCenter();
@@ -128,7 +128,7 @@ public class StockpileLiftControllerWindow : BaseMachineWindow
             UIManager.RemoveUIRules("Machine");
             return;
         }
-        UIUtil.UIdelay = 0;
+        //UIUtil.UIdelay = 0;
 
         StockpileLiftController center = (targetEntity as StockpileLiftController).GetCenter();
         if (!this.registerstock && !this.ItemSearch)
@@ -212,6 +212,14 @@ public class StockpileLiftControllerWindow : BaseMachineWindow
                                 }
                                 if (!foundvalue)
                                     this.SearchResults.Add(ItemManager.SpawnCubeStack(TerrainData.mEntries[n].CubeType, TerrainData.mEntries[n].DefaultValue, 1));
+                            }
+                            if ((this.EntryString.ToLower().Contains("component") || this.EntryString.ToLower().Contains("placement") || this.EntryString.ToLower().Contains("multi")) && TerrainData.mEntries[n].CubeType == 600)
+                            {
+                                int count = TerrainData.mEntries[n].Values.Count;
+                                for (int m = 0; m < count; m++)
+                                {
+                                    this.SearchResults.Add(ItemManager.SpawnCubeStack(600, TerrainData.mEntries[n].Values[m].Value, 1));
+                                }
                             }
                         }
                         if (this.SearchResults.Count == 0)
@@ -390,25 +398,25 @@ public class StockpileLiftControllerWindow : BaseMachineWindow
             case "order_top_toggle":
                 center.ToggleLoadMode("upper");
                 if (!WorldScript.mbIsServer)
-                    NetworkManager.instance.SendInterfaceCommand("StockpileLiftControllerWindow", "ToggleLoadMode", "upper", (ItemBase)null, (SegmentEntity)center, 0.0f);
+                    NetworkManager.instance.SendInterfaceCommand(InterfaceName, InterfaceToggleLoadMode, "upper", (ItemBase)null, (SegmentEntity)center, 0.0f);
                 StockpileLiftControllerWindow.dirty = true;
                 return true;
             case "order_bottom_toggle":
                 center.ToggleLoadMode("lower");
                 if (!WorldScript.mbIsServer)
-                    NetworkManager.instance.SendInterfaceCommand("StockpileLiftControllerWindow", "ToggleLoadMode", "lower", (ItemBase)null, (SegmentEntity)center, 0.0f);
+                    NetworkManager.instance.SendInterfaceCommand(InterfaceName, InterfaceToggleLoadMode, "lower", (ItemBase)null, (SegmentEntity)center, 0.0f);
                 StockpileLiftControllerWindow.dirty = true;
                 return true;
             case "order_switch":
                 center.ToggleLoadOrder();
                 if (!WorldScript.mbIsServer)
-                    NetworkManager.instance.SendInterfaceCommand("StockpileLiftControllerWindow", "ToggleLoadOrder", "lower", (ItemBase)null, (SegmentEntity)center, 0.0f);
+                    NetworkManager.instance.SendInterfaceCommand(InterfaceName, InterfaceToggleLoadOrder, "lower", (ItemBase)null, (SegmentEntity)center, 0.0f);
                 StockpileLiftControllerWindow.dirty = true;
                 return true;
             case "rail_check":
                 center.ResetRailCheck();
                 if (!WorldScript.mbIsServer)
-                    NetworkManager.instance.SendInterfaceCommand("StockpileLiftControllerWindow", "ResetRailCheck", "lower", (ItemBase)null, (SegmentEntity)center, 0.0f);
+                    NetworkManager.instance.SendInterfaceCommand(InterfaceName, InterfaceResetRailCheck, "lower", (ItemBase)null, (SegmentEntity)center, 0.0f);
                 StockpileLiftControllerWindow.dirty = true;
                 return true;
             case "registerstocklimits":
@@ -444,7 +452,7 @@ public class StockpileLiftControllerWindow : BaseMachineWindow
                 ItemBase item = stock[slotNum].Item;
                 center.mLiftMob.RemoveStockItem(item);
                 if (!WorldScript.mbIsServer)
-                    NetworkManager.instance.SendInterfaceCommand("StockpileLiftControllerWindow", "RegisterLiftStock", "remove", item, (SegmentEntity)center, 0.0f);
+                    NetworkManager.instance.SendInterfaceCommand(InterfaceName, InterfaceRegisterLiftStock, "remove", item, (SegmentEntity)center, 0.0f);
                 this.manager.RedrawWindow();
             }
 
@@ -465,7 +473,7 @@ public class StockpileLiftControllerWindow : BaseMachineWindow
                 if (center.mLiftMob.StockLimits[slotNum].StockLimit > center.mLiftMob.mnMaxStorage)
                     center.mLiftMob.StockLimits[slotNum].StockLimit = center.mLiftMob.mnMaxStorage;
                 if (!WorldScript.mbIsServer)
-                    NetworkManager.instance.SendInterfaceCommand("StockpileLiftControllerWindow", "SetLiftStock", center.mLiftMob.StockLimits[slotNum].StockLimit.ToString(), center.mLiftMob.StockLimits[slotNum].Item, (SegmentEntity)center, 0.0f);
+                    NetworkManager.instance.SendInterfaceCommand(InterfaceName, InterfaceSetLiftStock, center.mLiftMob.StockLimits[slotNum].StockLimit.ToString(), center.mLiftMob.StockLimits[slotNum].Item, (SegmentEntity)center, 0.0f);
                 StockpileLiftControllerWindow.dirty = true;
             }
             return true;
@@ -485,7 +493,7 @@ public class StockpileLiftControllerWindow : BaseMachineWindow
                 if (center.mLiftMob.StockLimits[slotNum].StockLimit < 0)
                     center.mLiftMob.StockLimits[slotNum].StockLimit = 0;
                 if (!WorldScript.mbIsServer)
-                    NetworkManager.instance.SendInterfaceCommand("StockpileLiftControllerWindow", "SetLiftStock", center.mLiftMob.StockLimits[slotNum].StockLimit.ToString(), center.mLiftMob.StockLimits[slotNum].Item, (SegmentEntity)center, 0.0f);
+                    NetworkManager.instance.SendInterfaceCommand(InterfaceName, InterfaceSetLiftStock, center.mLiftMob.StockLimits[slotNum].StockLimit.ToString(), center.mLiftMob.StockLimits[slotNum].Item, (SegmentEntity)center, 0.0f);
                 StockpileLiftControllerWindow.dirty = true;
             }
             return true;
@@ -498,7 +506,7 @@ public class StockpileLiftControllerWindow : BaseMachineWindow
             {
                 center.mLiftMob.AddStockItem(this.SearchResults[slotNum]);
                 if (!WorldScript.mbIsServer)
-                    NetworkManager.instance.SendInterfaceCommand("StockpileLiftControllerWindow", "RegisterLiftStock", "0", this.SearchResults[slotNum], (SegmentEntity)center, 0.0f);
+                    NetworkManager.instance.SendInterfaceCommand(InterfaceName, InterfaceRegisterLiftStock, "0", this.SearchResults[slotNum], (SegmentEntity)center, 0.0f);
                 this.SearchResults = null;
                 this.ItemSearch = false;
                 this.EntryString = "";
@@ -543,7 +551,7 @@ public class StockpileLiftControllerWindow : BaseMachineWindow
                 StockpileLiftControllerWindow.dirty = true;
                 this.Redraw(targetEntity);
                 if (!WorldScript.mbIsServer)
-                    NetworkManager.instance.SendInterfaceCommand("StockpileLiftControllerWindow", "SwapCargoLift", (string)null, (ItemBase)null, (SegmentEntity)center, 0.0f);
+                    NetworkManager.instance.SendInterfaceCommand(InterfaceName, InterfaceSwapCargoLift, (string)null, (ItemBase)null, (SegmentEntity)center, 0.0f);
                 return true;
             }
             if (center.IsValidLift(swapitem) && (swapitem as ItemStack).mnAmount <= 1)
@@ -552,7 +560,7 @@ public class StockpileLiftControllerWindow : BaseMachineWindow
                 StockpileLiftControllerWindow.dirty = true;
                 this.Redraw(targetEntity);
                 if (!WorldScript.mbIsServer)
-                    NetworkManager.instance.SendInterfaceCommand("StockpileLiftControllerWindow", "SwapCargoLift", (string)null, swapitem, (SegmentEntity)center, 0.0f);
+                    NetworkManager.instance.SendInterfaceCommand(InterfaceName, InterfaceSwapCargoLift, (string)null, swapitem, (SegmentEntity)center, 0.0f);
                 return true;
             }
         }
@@ -575,7 +583,7 @@ public class StockpileLiftControllerWindow : BaseMachineWindow
                         return;
                     center.mLiftMob.AddStockItem(draggedItem);
                     if (!WorldScript.mbIsServer)
-                        NetworkManager.instance.SendInterfaceCommand("StockpileLiftControllerWindow", "RegisterLiftStock", "0", draggedItem, (SegmentEntity)center, 0.0f);
+                        NetworkManager.instance.SendInterfaceCommand(InterfaceName, InterfaceRegisterLiftStock, "0", draggedItem, (SegmentEntity)center, 0.0f);
                     this.manager.RedrawWindow();
                 }
             }
@@ -604,7 +612,7 @@ public class StockpileLiftControllerWindow : BaseMachineWindow
         InventoryPanelScript.MarkDirty();
         if (WorldScript.mbIsServer)
             return;
-        NetworkManager.instance.SendInterfaceCommand("StockpileLiftControllerWindow", "SwapCargoLift", (string)null, draggedItem, (SegmentEntity)center, 0.0f);
+        NetworkManager.instance.SendInterfaceCommand(InterfaceName, InterfaceSwapCargoLift, (string)null, draggedItem, (SegmentEntity)center, 0.0f);
     }
 
     public override void OnClose(SegmentEntity targetEntity)
@@ -629,30 +637,30 @@ public class StockpileLiftControllerWindow : BaseMachineWindow
         {
             switch (key)
             {
-                case "ToggleLoadMode":
+                case InterfaceToggleLoadMode:
                     StockpileLiftController.ToggleLoadMode(nic.payload);
                     StockpileLiftControllerWindow.dirty = true;
                     break;
-                case "ToggleLoadOrder":
+                case InterfaceToggleLoadOrder:
                     StockpileLiftController.ToggleLoadOrder();
                     StockpileLiftControllerWindow.dirty = true;
                     break;
-                case "SwapCargoLift":
+                case InterfaceSwapCargoLift:
                     StockpileLiftController.SwapLift(nic.itemContext);
                     StockpileLiftControllerWindow.networkRedraw = true;
                     break;
-                case "ResetRailCheck":
+                case InterfaceResetRailCheck:
                     StockpileLiftController.ResetRailCheck();
                     StockpileLiftControllerWindow.dirty = true;
                     break;
-                case "SetLiftStock":
+                case InterfaceSetLiftStock:
                     int stocklimit;
                     int.TryParse(nic.payload ?? "-1", out stocklimit);
                     if (StockpileLiftController.mLiftMob != null)
                         StockpileLiftController.mLiftMob.SetNetworkStock(nic.itemContext, stocklimit);
                     StockpileLiftControllerWindow.dirty = true;
                     break;
-                case "RegisterLiftStock":
+                case InterfaceRegisterLiftStock:
                     bool removeitem = nic.payload == "remove";
                     if (StockpileLiftController.mLiftMob != null)
                         StockpileLiftController.mLiftMob.NewNetworkStock(nic.itemContext, removeitem);
